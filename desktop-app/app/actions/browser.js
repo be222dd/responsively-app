@@ -19,7 +19,6 @@ import {
 } from '../constants/pubsubEvents';
 import {getBounds, getDefaultDevToolsWindowSize} from '../reducers/browser';
 import {DEVTOOLS_MODES} from '../constants/previewerLayouts';
-import console from 'electron-timber';
 
 export const NEW_ADDRESS = 'NEW_ADDRESS';
 export const NEW_PAGE_META_FIELD = 'NEW_PAGE_META_FIELD';
@@ -175,6 +174,7 @@ export function onAddressChange(newURL, force) {
     } = getState();
 
     if (newURL === address) {
+      ipcRenderer.send('nullifiy')
       if (force) {
         pubsub.publish(NAVIGATION_RELOAD, [{ignoreCache: false}]);
       }
@@ -186,7 +186,7 @@ export function onAddressChange(newURL, force) {
     if (isHashDiff) {
       return;
     }
-
+    ipcRenderer.send('nullifiy')
     dispatch(newAddress(newURL));
     pubsub.publish(ADDRESS_CHANGE, [{address: newURL, force: false}]);
   };
@@ -414,6 +414,7 @@ export function goToHomepage() {
 }
 
 export function gotoUrl(url) {
+  ipcRenderer.send('nullifiy')
   return (dispatch: Dispatch, getState: RootStateType) => {
     const {
       browser: {address},
@@ -710,6 +711,7 @@ export function triggerNavigationForward() {
 }
 
 export function triggerNavigationReload(_, args) {
+  ipcRenderer.send('nullifiy')
   return (dispatch: Dispatch, getState: RootStateType) => {
     const ignoreCache = (args || {}).ignoreCache || false;
     pubsub.publish(NAVIGATION_RELOAD, [{ignoreCache}]);

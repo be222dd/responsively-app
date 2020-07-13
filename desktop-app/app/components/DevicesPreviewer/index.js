@@ -25,6 +25,7 @@ export default function DevicesPreviewer(props) {
   } = props;
   const [activeTab, changeTab] = useState(0);
 
+
   let newActiveTab = activeTab;
   const devicesAfterFiltering = devices
     .map((device, index) => {

@@ -143,10 +143,12 @@ app.on(
 app.on('login', (event, webContents, request, authInfo, callback) => {
   event.preventDefault();
   const {url} = request;
-  if (httpAuthCallbacks[url]) {
-    return httpAuthCallbacks[url].push(callback);
+  if (httpAuthCallbacks[url]){
+    httpAuthCallbacks[url].push(callback)
+    mainWindow.webContents.send('do-basic-auth', {url});
+    return 
   }
-  httpAuthCallbacks[url] = [callback];
+  httpAuthCallbacks[url]=[callback]
   mainWindow.webContents.send('http-auth-prompt', {url});
 });
 
@@ -212,7 +214,17 @@ const createWindow = async () => {
     onResize();
   });
 
+
+  ipcMain.on('nullifiy',(event, ...args) => {
+     httpAuthCallbacks={}
+  })
+
+  
+
+
   ipcMain.on('http-auth-promt-response', (event, ...args) => {
+   
+    
     if (!args[0].url) {
       return;
     }
@@ -220,8 +232,12 @@ const createWindow = async () => {
     if (!httpAuthCallbacks[url]) {
       return;
     }
+    
     httpAuthCallbacks[url].forEach(cb => cb(username, password));
-    httpAuthCallbacks[url] = null;
+  
+    httpAuthCallbacks[url] = [];
+     
+   
   });
 
   ipcMain.on('prefers-color-scheme-select', (event, scheme) => {
